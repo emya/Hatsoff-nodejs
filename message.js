@@ -265,22 +265,22 @@ io.on('connection', function(socket){
         var pool = new pg.Pool(pgConfig);
 
         try { 
-	    pool.connect(function(err, client, release) {
-	      var profession_query = `
-	        SELECT week1_user.uid as user_id, week1_user.first_name, week1_user.last_name, week1_profile.photo,
-	      	 week1_profile.profession1, week1_profile.profession2, week1_profile.profession3, week1_profile.describe
-	        FROM week1_profile, week1_user
-	        WHERE week1_user.uid!='${socket.uid}' AND week1_profile.user_id=week1_user.id
-	      `;
+            pool.connect(function(err, client, release) {
+                var profession_query = `
+                  SELECT week1_user.uid as user_id, week1_user.first_name, week1_user.last_name, week1_profile.photo,
+                   week1_profile.profession1, week1_profile.profession2, week1_profile.profession3, week1_profile.describe
+                  FROM week1_profile, week1_user
+                  WHERE week1_user.uid!='${socket.uid}' AND week1_profile.user_id=week1_user.id
+                `;
 
-	      client.query(profession_query, function(err, result){
-	        release();
-	        if (err) {
-	            return console.error('Error executing query', err.stack)
-	        }
-	        socket.emit('get users list', result.rows);
-	      });
-	    });
+                client.query(profession_query, function(err, result){
+                    release();
+                    if (err) {
+                        return console.error('Error executing query', err.stack)
+                    }
+                    socket.emit('get users list', result.rows);
+                });
+            });
         } catch(error) {
             console.log("Error at list users at signup:", error); 
         }
