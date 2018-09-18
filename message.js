@@ -2033,237 +2033,218 @@ io.on('connection', function(socket){
     });
 
     socket.on('search query', function(query){
-      try{
-        var pool = new pg.Pool(pgConfig);
+        try{
+            var pool = new pg.Pool(pgConfig);
 
-        pool.connect(function(err, client, release) {
-          var profession_query = `
-            SELECT week1_user.uid as user_id, week1_user.first_name, week1_user.last_name, week1_profile.photo,
-                   week1_profile.profession1, week1_profile.profession2, week1_profile.profession3, week1_profile.describe
-            FROM week1_profile, week1_user
-            WHERE week1_user.uid!='${socket.uid}' AND week1_profile.user_id=week1_user.id
-            AND ( week1_profile.profession1='${query}' OR week1_profile.profession2='${query}' OR week1_profile.profession3='${query}'
-                  OR week1_profile.profession4='${query}' OR week1_profile.profession5='${query}')
-          `;
+            pool.connect(function(err, client, release) {
+                var profession_query = `
+                  SELECT week1_user.uid as user_id, week1_user.first_name, week1_user.last_name, week1_profile.photo,
+                         week1_profile.profession1, week1_profile.profession2, week1_profile.profession3, week1_profile.describe
+                  FROM week1_profile, week1_user
+                  WHERE week1_user.uid!='${socket.uid}' AND week1_profile.user_id=week1_user.id
+                  AND ( week1_profile.profession1='${query}' OR week1_profile.profession2='${query}' OR week1_profile.profession3='${query}'
+                        OR week1_profile.profession4='${query}' OR week1_profile.profession5='${query}')
+                `;
 
-          client.query(profession_query, function(err, result){
-            release();
-            if (err) {
-                return console.error('Error executing query', err.stack)
-            }
-            socket.emit('get search result by profession', result.rows);
-          });
-        });
+                client.query(profession_query, function(err, result){
+                    release();
+                    if (err) {
+                        return console.error('Error executing query', err.stack)
+                    }
+                    socket.emit('get search result by profession', result.rows);
+                });
+            });
 
-        pool.connect(function(err, client, release) {
-          var skill_query = `
-            SELECT week1_user.uid as user_id, week1_user.first_name, week1_user.last_name, week1_profile.photo,
-                   week1_profile.profession1, week1_profile.profession2, week1_profile.profession3, week1_profile.describe
-            FROM week1_profile, week1_user
-            WHERE week1_user.uid!='${socket.uid}' AND week1_profile.user_id=week1_user.id
-            AND ( week1_profile.skill1='${query}' OR week1_profile.skill2='${query}' OR week1_profile.skill3='${query}'
-                  OR week1_profile.skill4='${query}' OR week1_profile.skill5='${query}' OR week1_profile.skill6='${query}'
-                  OR week1_profile.skill7='${query}' OR week1_profile.skill8='${query}' OR week1_profile.skill9='${query}' OR week1_profile.skill10='${query}')
-          `;
+            pool.connect(function(err, client, release) {
+                var skill_query = `
+                  SELECT week1_user.uid as user_id, week1_user.first_name, week1_user.last_name, week1_profile.photo,
+                         week1_profile.profession1, week1_profile.profession2, week1_profile.profession3, week1_profile.describe
+                  FROM week1_profile, week1_user
+                  WHERE week1_user.uid!='${socket.uid}' AND week1_profile.user_id=week1_user.id
+                  AND ( week1_profile.skill1='${query}' OR week1_profile.skill2='${query}' OR week1_profile.skill3='${query}'
+                        OR week1_profile.skill4='${query}' OR week1_profile.skill5='${query}' OR week1_profile.skill6='${query}'
+                        OR week1_profile.skill7='${query}' OR week1_profile.skill8='${query}' OR week1_profile.skill9='${query}' OR week1_profile.skill10='${query}')
+                `;
 
-          client.query(skill_query, function(err, result){
-            release();
-            if (err) {
-                return console.error('Error executing query', err.stack)
-            }
-            socket.emit('get search result by skill', result.rows);
-          });
+                client.query(skill_query, function(err, result){
+                    release();
+                    if (err) {
+                        return console.error('Error executing query', err.stack)
+                    }
+                    socket.emit('get search result by skill', result.rows);
+                });
+            });
 
-        });
+            pool.connect(function(err, client, release) {
+                var username_query = `
+                  SELECT week1_user.uid as user_id, week1_user.first_name, week1_user.last_name, week1_profile.photo,
+                         week1_profile.profession1, week1_profile.profession2, week1_profile.profession3, week1_profile.describe
+                  FROM week1_profile, week1_user
+                  WHERE week1_user.uid!='${socket.uid}' AND week1_profile.user_id=week1_user.id
+                  AND ( week1_user.first_name='${query}' OR week1_user.last_name='${query}' )
+                `;
 
-        pool.connect(function(err, client, release) {
-          var username_query = `
-            SELECT week1_user.uid as user_id, week1_user.first_name, week1_user.last_name, week1_profile.photo,
-                   week1_profile.profession1, week1_profile.profession2, week1_profile.profession3, week1_profile.describe
-            FROM week1_profile, week1_user
-            WHERE week1_user.uid!='${socket.uid}' AND week1_profile.user_id=week1_user.id
-            AND ( week1_user.first_name='${query}' OR week1_user.last_name='${query}' )
-          `;
+                client.query(username_query, function(err, result){
+                    release();
+                    if (err) {
+                        return console.error('Error executing query', err.stack)
+                    }
+                    socket.emit('get search result by user name', result.rows);
+                });
+            });
 
-          client.query(username_query, function(err, result){
-            release();
-            if (err) {
-                return console.error('Error executing query', err.stack)
-            }
-            socket.emit('get search result by user name', result.rows);
-          });
+            pool.connect(function(err, client, release) {
+                var portfolio_query = `
+                  SELECT week1_user.uid as user_id, week1_user.first_name, week1_user.last_name, week1_showcase.title, week1_showcase.image,
+                         week1_showcase.tag1, week1_showcase.tag2, week1_showcase.tag3, week1_showcase.describe
+                  FROM week1_showcase, week1_user
+                  WHERE week1_user.uid!='${socket.uid}' AND week1_showcase.user_id=week1_user.id
+                  AND ( week1_showcase.tag1='${query}' OR week1_showcase.tag2='${query}' )
+                `;
 
-        });
+                client.query(portfolio_query, function(err, result){
+                    release();
+                    if (err) {
+                        return console.error('Error executing query', err.stack)
+                    }
+                    socket.emit('get search result by portfolio', result.rows);
+                });
+            });
 
-        pool.connect(function(err, client, release) {
-          var portfolio_query = `
-            SELECT week1_user.uid as user_id, week1_user.first_name, week1_user.last_name, week1_showcase.title, week1_showcase.image,
-                   week1_showcase.tag1, week1_showcase.tag2, week1_showcase.tag3, week1_showcase.describe
-            FROM week1_showcase, week1_user
-            WHERE week1_user.uid!='${socket.uid}' AND week1_showcase.user_id=week1_user.id
-            AND ( week1_showcase.tag1='${query}' OR week1_showcase.tag2='${query}' )
-          `;
+            pool.connect(function(err, client, release) {
+                var upcoming_query = `
+                  SELECT week1_user.uid as user_id, week1_user.first_name, week1_user.last_name, week1_upcomingwork.title, week1_upcomingwork.image,
+                         week1_upcomingwork.tag1, week1_upcomingwork.tag2, week1_upcomingwork.tag3, week1_upcomingwork.describe
+                  FROM week1_upcomingwork, week1_user
+                  WHERE week1_user.uid!='${socket.uid}' AND week1_upcomingwork.user_id=week1_user.id
+                  AND ( week1_upcomingwork.tag1='${query}' OR week1_upcomingwork.tag2='${query}' )
+                `;
 
-          client.query(portfolio_query, function(err, result){
-            release();
-            if (err) {
-                return console.error('Error executing query', err.stack)
-            }
-            socket.emit('get search result by portfolio', result.rows);
-          });
-
-        });
-
-        pool.connect(function(err, client, release) {
-          var upcoming_query = `
-            SELECT week1_user.uid as user_id, week1_user.first_name, week1_user.last_name, week1_upcomingwork.title, week1_upcomingwork.image,
-                   week1_upcomingwork.tag1, week1_upcomingwork.tag2, week1_upcomingwork.tag3, week1_upcomingwork.describe
-            FROM week1_upcomingwork, week1_user
-            WHERE week1_user.uid!='${socket.uid}' AND week1_upcomingwork.user_id=week1_user.id
-            AND ( week1_upcomingwork.tag1='${query}' OR week1_upcomingwork.tag2='${query}' )
-          `;
-
-          client.query(upcoming_query, function(err, result){
-            release();
-            if (err) {
-                return console.error('Error executing query', err.stack)
-            }
-            socket.emit('get search result by upcoming', result.rows);
-          });
-
-        });
-
-        pool.end()
-
-      }catch(error){
-        console.log("error at search query:", error)
-      }
+                client.query(upcoming_query, function(err, result){
+                    release();
+                    if (err) {
+                        return console.error('Error executing query', err.stack)
+                    }
+                    socket.emit('get search result by upcoming', result.rows);
+                });
+            });
+            pool.end()
+        }catch(error){
+          console.log("error at search query:", error)
+        }
     });
 
 
     socket.on('send message', function(data){
-      try{
-
-        if(data.to_uid){
-          var uid1, uid2, action_user;
-          if (data.uid < data.to_uid){
-            uid1 = data.uid;
-            uid2 = data.to_uid; 
-            action_user = 1;
-          }else{
-            uid2 = data.uid;
-            uid1 = data.to_uid; 
-            action_user = 2;
-          }
-
-          MessageRelation.findOne({ uid1:uid1, uid2:uid2 }).exec(function(err, result){
-            if (err) {
-              console.log(err);
-            }else {
-              if (result){
-                if(data.data && data.data != {}){
-                  result.messages.push({uid:data.uid, content:data.msg, image:{data:data.data['file'], contentType: data.data['type']}});
+        try{
+            if(data.to_uid){
+                var uid1, uid2, action_user;
+                if (data.uid < data.to_uid){
+                    uid1 = data.uid;
+                    uid2 = data.to_uid; 
+                    action_user = 1;
                 }else{
-                  result.messages.push({uid:data.uid, content:data.msg});
+                    uid2 = data.uid;
+                    uid1 = data.to_uid; 
+                    action_user = 2;
                 }
-                result.save(function (error) {
-                  if (!error) {
-                    console.log('Succeed to send message!');
-                  }
-                  socket.join(result._id);
-                  //socket.emit('new message', {uid:data.uid, content:data.msg});
-                  io.sockets.in(result._id).emit('new message', {uid:data.uid, to_uid:data.to_uid, content:data.msg, room_id:result._id, image:data.data});
-                });
 
-              }else{
-                console.log("no message relationship");
-                var newMessageRelation = new MessageRelation({uid1:uid1, uid2:uid2, action_user:action_user, status:1, messages:{uid:socket.uid, content:data.msg}});
-
-                newMessageRelation.save(function(error, newdata){
-
-                  if (error) {
-                    console.log(error);
-                  }else{
-                    /** emmit new message to data.to_uid message.html **/
-                    if (users[data.to_uid]){
-                      users[data.to_uid].emit('new message', {uid:socket.uid, msg:data.msg, room_id:newdata._id}) 
+                MessageRelation.findOne({ uid1:uid1, uid2:uid2 }).exec(function(err, result){
+                    if (err) {
+                        console.log(err);
+                    }else {
+                        if (result){
+                            if(data.data && data.data != {}){
+                                result.messages.push({uid:data.uid, content:data.msg, image:{data:data.data['file'], contentType: data.data['type']}});
+                            }else{
+                                result.messages.push({uid:data.uid, content:data.msg});
+                            }
+                            result.save(function (error) {
+                                if (!error) {
+                                    console.log('Succeed to send message!');
+                                }
+                                socket.join(result._id);
+                                //socket.emit('new message', {uid:data.uid, content:data.msg});
+                                io.sockets.in(result._id).emit('new message', {uid:data.uid, to_uid:data.to_uid, content:data.msg, room_id:result._id, image:data.data});
+                            });
+                        }else{
+                            var newMessageRelation = new MessageRelation({uid1:uid1, uid2:uid2, action_user:action_user, status:1, messages:{uid:socket.uid, content:data.msg}});
+                            newMessageRelation.save(function(error, newdata){
+                                if (error) {
+                                    console.log(error);
+                                }else{
+                                    /** emmit new message to data.to_uid message.html **/
+                                    if (users[data.to_uid]){
+                                        users[data.to_uid].emit('new message', {uid:socket.uid, msg:data.msg, room_id:newdata._id}) 
+                                    }
+                                }
+                            });
+                        }
                     }
-                  }
                 });
-              }
-
-            }
-          });
-        }else if(data.room_id){
-
-          MessageRelation.findById(data.room_id, function(err, result){
-            if (err) {
-              console.log(err);
-            }else {
-              if (result){
-
-                if(data.data && data.data != {}){
-                  result.messages.push({uid:data.uid, content:data.msg, image:{data:data.data['file'], contentType: data.data['type']}});
-                }else{
-                  result.messages.push({uid:data.uid, content:data.msg});
-                }
-                result.save(function (error) {
-                  if (!error) {
-                    console.log('Succeed to send message!');
-                  }
-                  socket.join(result._id);
-                  io.sockets.in(result._id).emit('new message', {uid:data.uid, to_uid:data.to_uid, content:data.msg, room_id:result._id, image:data.data});
+            }else if(data.room_id){
+                MessageRelation.findById(data.room_id, function(err, result){
+                    if (err) {
+                        console.log(err);
+                    }else {
+                        if (result){
+                            if(data.data && data.data != {}){
+                                result.messages.push({uid:data.uid, content:data.msg, image:{data:data.data['file'], contentType: data.data['type']}});
+                            }else{
+                                result.messages.push({uid:data.uid, content:data.msg});
+                            }
+                            result.save(function (error) {
+                                if (!error) {
+                                    console.log('Succeed to send message!');
+                                }
+                                socket.join(result._id);
+                                io.sockets.in(result._id).emit('new message', {uid:data.uid, to_uid:data.to_uid, content:data.msg, room_id:result._id, image:data.data});
+                            });
+                        }
+                    }
                 });
-
-              }else{
-
-              }
             }
-          });
+        }catch(error){
+            console.log("error at send message:", error)
         }
-      }catch(error){
-        console.log("error at send message:", error)
-      }
     });
 
-
     socket.on('get message', function(data){
-      try{
-        var uid1, uid2, action_user;
-        if (socket.uid < data.to_uid){
-          uid1 = socket.uid;
-          uid2 = data.to_uid; 
-          action_user = 1;
-        }else{
-          uid2 = socket.uid;
-          uid1 = data.to_uid; 
-          action_user = 2;
-        }
-
-        MessageRelation.findOne({ uid1:uid1, uid2:uid2 }).exec(function(err, result){
-          if (err) {
-            console.log(err);
-          }else {
-            if (result){
-              socket.join(result._id);
-              socket.emit('set message', result);
+        try{
+            var uid1, uid2, action_user;
+            if (socket.uid < data.to_uid){
+              uid1 = socket.uid;
+              uid2 = data.to_uid; 
+              action_user = 1;
             }else{
-              var newMessageRelation = new MessageRelation({uid1:uid1, uid2:uid2, action_user:action_user, status:1 });
-              newMessageRelation.save(function(error, newdata){
-
-                if (error) {
-                  console.log(error);
-                }else{
-                  /** emmit new message to data.to_uid message.html **/
-                    socket.emit('set message', newdata) 
-                }
-              });
+              uid2 = socket.uid;
+              uid1 = data.to_uid; 
+              action_user = 2;
             }
-          }
-      });
-      }catch(error){
-        console.log("error at get message:", error)
-      }
+
+            MessageRelation.findOne({ uid1:uid1, uid2:uid2 }).exec(function(err, result){
+                if (err) {
+                    console.log(err);
+                }else {
+                    if (result){
+                        socket.join(result._id);
+                        socket.emit('set message', result);
+                    }else{
+                        var newMessageRelation = new MessageRelation({uid1:uid1, uid2:uid2, action_user:action_user, status:1 });
+                        newMessageRelation.save(function(error, newdata){
+                            if (error) {
+                                console.log(error);
+                            }else{
+                                /** emmit new message to data.to_uid message.html **/
+                                socket.emit('set message', newdata) 
+                            }
+                        });
+                    }
+                }
+            });
+        }catch(error){
+          console.log("error at get message:", error)
+        }
     });
 
     /***
@@ -2274,139 +2255,105 @@ io.on('connection', function(socket){
     **/
 
     socket.on('start message', function(data){
-      try{
-        var uid1, uid2, action_user;
-        if (socket.uid < data.to_uid){
-          uid1 = socket.uid;
-          uid2 = data.to_uid; 
-          action_user = 1;
-        }else{
-          uid2 = socket.uid;
-          uid1 = data.to_uid; 
-          action_user = 2;
-        }
-
-        MessageRelation.findOne({ uid1:uid1, uid2:uid2 }).exec(function(err, result){
-          if (err) {
-            console.log(err);
-          }else {
-            if (!result){
-
-              var newMessageRelation = new MessageRelation({uid1:uid1, uid2:uid2, action_user:action_user, status:1, messages:{uid:socket.uid, content:data.msg}});
-              newMessageRelation.save(function(error, newdata){
-
-                if (error) {
-                  console.log(error);
-                }else{
-                  /** emmit new message to data.to_uid message.html **/
-                  if (users[data.to_uid]){
-                    users[data.to_uid].emit('send first message', {uid:socket.uid, msg:data.msg, room_id:newdata._id}) 
-                  }
-                }
-              });
-
-            } else{
-              socket.emit();
+        try{
+            var uid1, uid2, action_user;
+            if (socket.uid < data.to_uid){
+                uid1 = socket.uid;
+                uid2 = data.to_uid; 
+                action_user = 1;
+            }else{
+                uid2 = socket.uid;
+                uid1 = data.to_uid; 
+                action_user = 2;
             }
-          }
-        });
-      }catch(error){
-        console.log("error at start message:", error)
-      }
+
+            MessageRelation.findOne({ uid1:uid1, uid2:uid2 }).exec(function(err, result){
+                if (err) {
+                    console.log(err);
+                }else {
+                    if (!result){
+                        var newMessageRelation = new MessageRelation({uid1:uid1, uid2:uid2, action_user:action_user, status:1, messages:{uid:socket.uid, content:data.msg}});
+                        newMessageRelation.save(function(error, newdata){
+                            if (error) {
+                                console.log(error);
+                            }else{
+                                /** emmit new message to data.to_uid message.html **/
+                                if (users[data.to_uid]){
+                                  users[data.to_uid].emit('send first message', {uid:socket.uid, msg:data.msg, room_id:newdata._id}) 
+                                }
+                            }
+                        });
+                    } else{
+                        socket.emit();
+                    }
+                }
+            });
+        }catch(error){
+            console.log("error at start message:", error)
+        }
     });
 
     socket.on('accept first message', function(data){
-      var uid1, uid2, action_user;
-      if (socket.uid < data.to_uid){
-        uid1 = socket.uid;
-        uid2 = data.to_uid; 
-        action_user = 1;
-      }else{
-        uid2 = socket.uid;
-        uid1 = data.to_uid; 
-        action_user = 2;
-      }
+        try {
+            var uid1, uid2, action_user;
+            if (socket.uid < data.to_uid){
+                uid1 = socket.uid;
+                uid2 = data.to_uid; 
+                action_user = 1;
+            }else{
+                uid2 = socket.uid;
+                uid1 = data.to_uid; 
+                action_user = 2;
+            }
 
-      var query = { uid1:uid1, uid2:uid2 };
-      var option = {upsert:false};
+            var query = { uid1:uid1, uid2:uid2 };
+            var option = {upsert:false};
 
-      MessageRelation.update(query, {action_user:action_user, status:2}, option, function(err, raw){
-        if ( err ) console.log(err);
-        socket.emit('new accept user', {uid:data.to_uid, msg:data.msg, room_id:data.room_id});
-       });
-
+            MessageRelation.update(query, {action_user:action_user, status:2}, option, function(err, raw){
+                if ( err ) console.log(err);
+                socket.emit('new accept user', {uid:data.to_uid, msg:data.msg, room_id:data.room_id});
+            });
+        }catch(error){
+            console.log("error at accept first message:", error)
+        }
     });
     
     socket.on('block first message', function(data){
+        try {
+            var uid1, uid2, action_user;
+            if (socket.uid < data.to_uid){
+                uid1 = socket.uid;
+                uid2 = data.to_uid; 
+                action_user = 1;
+            }else{
+                uid2 = socket.uid;
+                uid1 = data.to_uid; 
+                action_user = 2;
+            }
 
-      var uid1, uid2, action_user;
-      if (socket.uid < data.to_uid){
-        uid1 = socket.uid;
-        uid2 = data.to_uid; 
-        action_user = 1;
-      }else{
-        uid2 = socket.uid;
-        uid1 = data.to_uid; 
-        action_user = 2;
-      }
+            var query = { uid1:uid1, uid2:uid };
+            var option = {upsert:false};
 
-      var query = { uid1:uid1, uid2:uid };
-      var option = {upsert:false};
-
-      MessageRelation.update(query, {action_user:action_user, status:3}, option, function(err, raw){
-        if ( err ) console.log(err);
-        socket.emit('new block user', data.to_uid);
-      });
-
+            MessageRelation.update(query, {action_user:action_user, status:3}, option, function(err, raw){
+                if ( err ) console.log(err);
+                socket.emit('new block user', data.to_uid);
+            });
+        }catch(error){
+            console.log("error at block first message:", error)
+        }
     });
-
-    socket.on('subscribe message room', function(room){
-      console.log('join message room:'+room);
-      socket.join(room);
-    });
-
-    socket.on('unsubscribe message room', function(room){
-      console.log('leave message room:'+room);
-      socket.leave(room);
-    });
-
-
-    socket.on('subscribe', function(room){
-      console.log('join room:'+room);
-      socket.join(room);
-    });
-
-    socket.on('unsubscribe', function(room){
-      console.log('leaving room:'+room);
-      socket.leave(room);
-    });
-
-    socket.on('send chat message', function(data) {
-      console.log('sending message');
-      io.sockets.in(data.room).emit('chat message', data);
-    });
-
-      /**
-      if (data.to in users){
-          users[data.to].emit('update comment', {msg:data.msg, uid:data.to, from:data.from});
-          console.log('post aomment!');
-      }else{
-          console.log('post aomment! But Error'+data.to+' : '+socket.uid);
-          callback('Erorr! The user is not online');
-      }
-      **/
 
     socket.on('disconnect', function(){
-      if (!socket.uid) return ;
-      delete users[socket.uid];
-      updateUids();
+        if (!socket.uid) return ;
+        delete users[socket.uid];
+        updateUids();
 
-      delete chatusers[socket.uid];
-      updatechatUids();
+        delete chatusers[socket.uid];
+        updatechatUids();
     });
 });
 
 http.listen(3000, function(){
-  console.log('listening on *:3000');
+    console.log('listening on *:3000');
 });
 
