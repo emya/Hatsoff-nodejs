@@ -468,12 +468,17 @@ io.on('connection', function(socket){
                         var tuplestr = "(?,?,?,?,?,?,?,?,?,?)";
                         var liststr = "('"+skills.join("','")+"')";
                         var profession_query = `
-                                SELECT DISTINCT
-                                    a.uid, a.first_name, a.last_name, p.profession1 
-                                FROM week1_profile p, week1_user a 
-                                WHERE a.uid!='${socket.uid}' AND p.user_id=a.id AND 
-                                  (p.skill1 in ${liststr} or p.skill2 in ${liststr} or p.skill3 in ${liststr} or p.skill4 in ${liststr} or p.skill5 in ${liststr} or p.skill6 in ${liststr} or p.skill7 in ${liststr} or p.skill8 in ${liststr} or p.skill9 in ${liststr} or p.skill10 in ${liststr} )
-                                LIMIT 3
+                            SELECT 
+                                a.uid, a.first_name, a.last_name, p.profession1
+                            FROM
+                                week1_user a
+                            JOIN 
+                                week1_profile p
+                            ON
+                                a.uid!='${socket.uid}' AND p.user_id=a.id 
+                            AND 
+                                (p.skill1 in ${liststr} or p.skill2 in ${liststr} or p.skill3 in ${liststr} or p.skill4 in ${liststr} or p.skill5 in ${liststr} or p.skill6 in ${liststr} or p.skill7 in ${liststr} or p.skill8 in ${liststr} or p.skill9 in ${liststr} or p.skill10 in ${liststr} )
+                            LIMIT 5
                             `;
 
                         client.query(profession_query, function(err, results){
