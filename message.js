@@ -342,6 +342,7 @@ io.on('connection', function(socket){
 
     socket.on('join community', function(data){
         try {
+            console.log("join community");
             var query = CommunityPost.find({});
 
             key = "community_"+socket.uid;
@@ -366,7 +367,6 @@ io.on('connection', function(socket){
                         if(error) {
                             return console.log(error);
                         }
-                        console.log("join community");
                         socket.emit('update community post', {"sharedocs": [], "likedocs": [], "hatsoffdocs": [], "docs": JSON.parse(body), "friends": []});
                     });
 
@@ -495,6 +495,8 @@ io.on('connection', function(socket){
                                     a.uid!='${socket.uid}' AND p.user_id=a.id
                                 AND
                                     (p.skill1 in ${liststr} or p.skill2 in ${liststr} or p.skill3 in ${liststr} or p.skill4 in ${liststr} or p.skill5 in ${liststr} or p.skill6 in ${liststr} or p.skill7 in ${liststr} or p.skill8 in ${liststr} or p.skill9 in ${liststr} or p.skill10 in ${liststr} )
+                                GROUP BY
+                                    a.uid, a.first_name, a.last_name, p.profession1
                                 LIMIT 5
                                 `;
 
@@ -1594,14 +1596,20 @@ io.on('connection', function(socket){
 
     socket.on('unshare community', function(data, callback){
         try {
-            SharePost.find({'to_uid':data.to_uid, 'user.uid':socket.uid, 'content_type':1}).remove().exec();
-            CommunityPost.findById(data.c_id, function(err, doc){
-                if (err) console.log(err);
-
-                if (doc.likes > 0){
-                    doc.shares -= 1;
-                    doc.save(callback);
+            Request.post({
+                "headers": { "content-type": "application/json" },
+                "url": `${base_url}/activity/${socket.uid}`,
+                "body": JSON.stringify({
+                    "activity": 2,
+                    "content": 1,
+                    "disable": 1,
+                    "content_id": data.c_id
+                })
+            }, (error, response, body) => {
+                if(error) {
+                    return console.dir(error);
                 }
+                console.dir(JSON.parse(body));
             });
         } catch(error){
             console.log("Error at unshare community:", error); 
@@ -1610,34 +1618,21 @@ io.on('connection', function(socket){
 
     socket.on('share community', function(data, callback){
         try {
-            var d = new Date();
-            
-            var newPost = new SharePost({to_uid:data.to_uid, user:{uid:socket.uid, first_name:socket.firstname, last_name:socket.lastname}, content_type:1, content_id:data.c_id});
-            newPost.save(function(err){
-                if (err) {
-                    console.log(err);
-                } else{
-                    socket.emit('new history', {to_uid:data.to_uid, content_type:1, content_id:data.c_id, action_id:5});
-                    if (data.to_uid in users){
-                        users[data.to_uid].emit('new notification', {action_id:5, from_uid:socket.uid, from_first_name:socket.firstname, from_lastname:socket.lastname});
-                    }
+            Request.post({
+                "headers": { "content-type": "application/json" },
+                "url": `${base_url}/activity/${socket.uid}`,
+                "body": JSON.stringify({
+                    "activity": 2,
+                    "content": 1,
+                    "content_id": data.c_id
+                })
+            }, (error, response, body) => {
+                if(error) {
+                    return console.dir(error);
                 }
+                console.dir(JSON.parse(body));
             });
 
-            CommunityPost.findById(data.c_id, function(err, doc){
-                if (err) console.log(err);
-
-                doc.shares += 1;
-                doc.save(callback);
-            });
-
-            var newNotification = new NotificationPost({action_id:5, to_uid:data.to_uid, action_user:{uid:socket.uid, first_name:socket.firstname, last_name:socket.lastname}});
-
-            newNotification.save(function(err){
-                if (err) {
-                    console.log(err);
-                }
-            });
         } catch(error){
             console.log("Error at share community:", error); 
         }
@@ -1645,15 +1640,22 @@ io.on('connection', function(socket){
 
     socket.on('unlike community', function(data, callback){
         try{
-            LikePost.find({'to_uid':data.to_uid, 'user.uid':socket.uid, 'content_type':1}).remove().exec();
-            CommunityPost.findById(data.c_id, function(err, doc){
-                if (err) console.log(err);
-
-                if (doc.likes > 0){
-                    doc.likes -= 1;
-                    doc.save(callback);
+            Request.post({
+                "headers": { "content-type": "application/json" },
+                "url": `${base_url}/activity/${socket.uid}`,
+                "body": JSON.stringify({
+                    "activity": 1,
+                    "content": 1,
+                    "disable": 1,
+                    "content_id": data.c_id
+                })
+            }, (error, response, body) => {
+                if(error) {
+                    return console.dir(error);
                 }
+                console.dir(JSON.parse(body));
             });
+
         } catch(error){
             console.log("Error at unlike community:", error); 
         }
@@ -1661,34 +1663,19 @@ io.on('connection', function(socket){
 
     socket.on('like community', function(data, callback){
         try {
-            var d = new Date();
-            
-            var newPost = new LikePost({to_uid:data.to_uid, user:{uid:socket.uid, first_name:socket.firstname, last_name:socket.lastname}, content_type:1, content_id:data.c_id});
-            newPost.save(function(err){
-                if (err) {
-                    console.log(err);
-                } else{
-                    socket.emit('new history', {to_uid:data.to_uid, content_type:1, content_id:data.c_id, action_id:4});
-                    if (data.to_uid in users){
-                        users[data.to_uid].emit('new notification', {action_id:4, from_uid:socket.uid, from_first_name:socket.firstname, from_lastname:socket.lastname});
-                    }
+            Request.post({
+                "headers": { "content-type": "application/json" },
+                "url": `${base_url}/activity/${socket.uid}`,
+                "body": JSON.stringify({
+                    "activity": 1,
+                    "content": 1,
+                    "content_id": data.c_id
+                })
+            }, (error, response, body) => {
+                if(error) {
+                    return console.dir(error);
                 }
-            });
-
-            CommunityPost.findById(data.c_id, function(err, doc){
-                if (err) console.log(err);
-
-                doc.likes += 1;
-                doc.save(callback);
-            });
-
-
-            var newNotification = new NotificationPost({action_id:4, to_uid:data.to_uid, action_user:{uid:socket.uid, first_name:socket.firstname, last_name:socket.lastname}});
-
-            newNotification.save(function(err){
-                if (err) {
-                  console.log(err);
-                }
+                console.dir(JSON.parse(body));
             });
         } catch(error){
             console.log("Error at like community:", error); 
